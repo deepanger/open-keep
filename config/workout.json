@@ -1,0 +1,125 @@
+{
+  "title": "20分钟孕妇轻柔锻炼",
+  "description": "专为孕期设计的低强度运动，安全温和",
+  "background_music": {
+    "url": "beat1.mp3",
+    "fade_in_seconds": 3,
+    "fade_out_seconds": 5,
+    "loop": true
+  },
+  "workout": [
+    {
+      "type": "warmup",
+      "name": "热身：手腕脚踝环绕",
+      "duration_seconds": 60,
+      "prompt": "开始热身啦，珍珍猪猪，慢慢来，保护好自己和宝宝"
+    },
+    {
+      "type": "exercise",
+      "name": "手臂画圈运动",
+      "duration_seconds": 45
+    },
+    {
+      "type": "rest",
+      "name": "短暂休息",
+      "duration_seconds": 15
+    },
+    {
+      "type": "exercise",
+      "name": "孕妇深蹲（扶椅）",
+      "duration_seconds": 60
+    },
+    {
+      "type": "rest",
+      "name": "休息",
+      "duration_seconds": 20
+    },
+    {
+      "type": "exercise",
+      "name": "侧卧抬腿练习",
+      "duration_seconds": 60
+    },
+    {
+      "type": "rest",
+      "name": "休息",
+      "duration_seconds": 20
+    },
+    {
+      "type": "exercise",
+      "name": "猫牛式骨盆运动",
+      "duration_seconds": 60
+    },
+    {
+      "type": "rest",
+      "name": "休息",
+      "duration_seconds": 20
+    },
+    {
+      "type": "exercise",
+      "name": "孕妇桥式（臀桥）",
+      "duration_seconds": 60
+    },
+    {
+      "type": "rest",
+      "name": "休息",
+      "duration_seconds": 20
+    },
+    {
+      "type": "exercise",
+      "name": "轻柔髋部画圈",
+      "duration_seconds": 45
+    },
+    {
+      "type": "rest",
+      "name": "短暂休息",
+      "duration_seconds": 15
+    },
+    {
+      "type": "exercise",
+      "name": "骨盆底肌练习（凯格尔）",
+      "duration_seconds": 60
+    },
+    {
+      "type": "warmup",
+      "name": "全身拉伸放松",
+      "duration_seconds": 120,
+      "prompt": "训练结束，慢慢放松，珍珍猪猪和宝宝都辛苦了"
+    }
+  ],
+  "type_prompts": {
+    "warmup": {
+      "intro": "热身开始，{name}，慢慢来",
+      "during": "保持轻柔的动作，注意呼吸"
+    },
+    "exercise": {
+      "intro": "开始{name}，保持平稳",
+      "during": "慢慢来，不要勉强自己，还有{duration}秒"
+    },
+    "rest": {
+      "intro": "休息{duration}秒，调整呼吸",
+      "during": "深呼吸，放松身体"
+    }
+  },
+  "encouragements": [
+    {
+      "text": "你做得很棒！",
+      "weight": 1
+    },
+    {
+      "text": "宝宝和你在一起加油！",
+      "weight": 2
+    },
+    {
+      "text": "慢慢来，不着急~",
+      "weight": 2
+    },
+    {
+      "text": "坚持住！马上就完成啦！",
+      "weight": 1
+    }
+  ],
+  "encouragement_schedule": {
+    "every_n_seconds": 45,
+    "probability": 0.8
+  }
+}
