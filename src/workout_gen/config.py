@@ -100,6 +100,11 @@ def parse_config(config_path: str) -> WorkoutConfig:
         probability=schedule_data.get("probability", 0.3),
     )
 
+    if schedule.every_n_seconds <= 0:
+        raise ValueError("encouragement_schedule.every_n_seconds must be > 0")
+    if not 0 <= schedule.probability <= 1:
+        raise ValueError("encouragement_schedule.probability must be between 0 and 1")
+
     return WorkoutConfig(
         title=data["title"],
         description=data.get("description", ""),
