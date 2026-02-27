@@ -127,6 +127,11 @@ class WorkoutAudioGenerator:
                 result_audio = bg_music
                 current_position_ms = 0
                 total_tts_ms = 0
+                next_encouragement_ms = (
+                    self.config.encouragement_schedule.every_n_seconds * 1000
+                    if self.config.encouragements
+                    else None
+                )
 
                 for i, step in enumerate(self.config.workout):
                     step_duration_ms = step.duration_seconds * 1000
@@ -164,12 +169,14 @@ class WorkoutAudioGenerator:
                                 total_tts_ms += len(during_audio)
 
                     # Add encouragement if scheduled (skip during prompt time)
-                    if self.config.encouragements:
-                        result_audio, encouragement_tts_ms = await self._add_encouragements(
+                    if self.config.encouragements and next_encouragement_ms is not None:
+                        step_end_ms = current_position_ms + step_duration_ms
+                        result_audio, encouragement_tts_ms, next_encouragement_ms = await self._add_encouragements(
                             result_audio,
-                            current_position_ms,
-                            step_duration_ms,
-                            step_type,
+                            window_start_ms=current_position_ms,
+                            window_end_ms=step_end_ms,
+                            step_type=step_type,
+                            next_position_ms=next_encouragement_ms,
                             exclude_positions=[during_position_ms] if during_position_ms else [],
                         )
                         total_tts_ms += encouragement_tts_ms
@@ -253,12 +260,13 @@ class WorkoutAudioGenerator:
     async def _add_encouragements(
         self,
         audio: AudioSegment,
-        start_ms: int,
-        duration_ms: int,
+        window_start_ms: int,
+        window_end_ms: int,
         step_type: str,
+        next_position_ms: int,
         exclude_positions: list[int | None] | None = None,
-    ) -> tuple[AudioSegment, int]:
-        """Add encouragement clips at scheduled intervals."""
+    ) -> tuple[AudioSegment, int, int]:
+        """Add encouragement clips at global scheduled intervals."""
         schedule = self.config.encouragement_schedule
         enc_interval_ms = schedule.every_n_seconds * 1000
         probability = schedule.probability
@@ -269,10 +277,10 @@ class WorkoutAudioGenerator:
         encouragement_texts = [enc.text for enc in self.config.encouragements]
         weights = [enc.weight for enc in self.config.encouragements]
 
-        current_pos = start_ms + enc_interval_ms
+        current_pos = next_position_ms
         total_tts_ms = 0
 
-        while current_pos < start_ms + duration_ms:
+        while current_pos < window_end_ms:
             # Skip if too close to an excluded position (during prompt)
             skip = False
             if exclude_positions:
@@ -281,7 +289,7 @@ class WorkoutAudioGenerator:
                         skip = True
                         break
 
-            if not skip:
+            if not skip and current_pos >= window_start_ms:
                 import random
                 if random.random() < probability:
                     # Select random encouragement
@@ -295,7 +303,7 @@ class WorkoutAudioGenerator:
 
             current_pos += enc_interval_ms
 
-        return audio, total_tts_ms
+        return audio, total_tts_ms, current_pos
 
 
 def generate_workout_audio(
