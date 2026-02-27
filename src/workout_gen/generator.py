@@ -161,13 +161,14 @@ class WorkoutAudioGenerator:
 
                     # Add encouragement if scheduled (skip during prompt time)
                     if self.config.encouragements:
-                        result_audio = self._add_encouragements(
+                        result_audio, encouragement_tts_ms = await self._add_encouragements(
                             result_audio,
                             current_position_ms,
                             step_duration_ms,
                             step_type,
                             exclude_positions=[during_position_ms] if during_position_ms else [],
                         )
+                        total_tts_ms += encouragement_tts_ms
 
                     current_position_ms += step_duration_ms
 
@@ -245,14 +246,14 @@ class WorkoutAudioGenerator:
                 temp_path.unlink()
             return None
 
-    def _add_encouragements(
+    async def _add_encouragements(
         self,
         audio: AudioSegment,
         start_ms: int,
         duration_ms: int,
         step_type: str,
         exclude_positions: list[int | None] | None = None,
-    ) -> AudioSegment:
+    ) -> tuple[AudioSegment, int]:
         """Add encouragement clips at scheduled intervals."""
         schedule = self.config.encouragement_schedule
         enc_interval_ms = schedule.every_n_seconds * 1000
@@ -265,6 +266,7 @@ class WorkoutAudioGenerator:
         weights = [enc.weight for enc in self.config.encouragements]
 
         current_pos = start_ms + enc_interval_ms
+        total_tts_ms = 0
 
         while current_pos < start_ms + duration_ms:
             # Skip if too close to an excluded position (during prompt)
@@ -282,12 +284,14 @@ class WorkoutAudioGenerator:
                     text = random.choices(encouragement_texts, weights=weights)[0]
                     print(f"Adding encouragement: {text}")
 
-                    # Note: In a full implementation, we would synthesize this
-                    # For now, we just log it (would need TTS synthesis here)
+                    encouragement_audio = await self._synthesize_text(text, step_type)
+                    if encouragement_audio:
+                        audio = overlay_audio(audio, encouragement_audio, position_ms=current_pos)
+                        total_tts_ms += len(encouragement_audio)
 
             current_pos += enc_interval_ms
 
-        return audio
+        return audio, total_tts_ms
 
 
 def generate_workout_audio(
