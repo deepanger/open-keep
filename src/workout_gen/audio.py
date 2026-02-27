@@ -82,10 +82,14 @@ def overlay_audio(
     return base.overlay(overlay, position=position_ms)
 
 
-def extend_to_duration(audio: AudioSegment, duration_ms: int) -> AudioSegment:
-    """Extend audio to specified duration by looping or adding silence."""
+def extend_to_duration(audio: AudioSegment, duration_ms: int, loop: bool = True) -> AudioSegment:
+    """Fit audio to target duration by looping or padding with silence."""
     if len(audio) >= duration_ms:
         return audio[:duration_ms]
+
+    if not loop:
+        # Keep original once, then pad with silence.
+        return audio + AudioSegment.silent(duration=duration_ms - len(audio))
 
     # Loop to fill
     result = AudioSegment.silent(duration=duration_ms)

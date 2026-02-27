@@ -92,7 +92,11 @@ class WorkoutAudioGenerator:
                 )
 
                 # Extend background music to cover entire workout
-                bg_music = extend_to_duration(bg_music, total_duration_ms)
+                bg_music = extend_to_duration(
+                    bg_music,
+                    total_duration_ms,
+                    loop=self.config.background_music.loop,
+                )
 
                 # Generate prompts for workout steps
                 prompts = []
